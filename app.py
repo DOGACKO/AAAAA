@@ -3,12 +3,18 @@ import numpy as np  # np mean, np random
 import pandas as pd  # read csv, df manipulation
 import altair as alt
 import streamlit as st  # data web application development
-
+######
+#http://localhost:8501/#878fa778
+######
 # Streamlit page configuration (must be the first Streamlit command)
 st.set_page_config(layout="wide")
 
 # Load the data
-Erimiş = pd.read_excel("C:/Users/dkoral/Desktop/Haziran_Erimişler_2024_py.xlsx")
+erimis_path = "C:/Users/dkoral/Desktop/Haziran_Erimişler_2024_py.xlsx"
+erimeyecekler_path = "C:/Users/dkoral/Desktop/Haziran_Eriyecekler_2024_py.xlsx"
+
+Erimis = pd.read_excel(erimis_path)
+Erimeyecekler = pd.read_excel(erimeyecekler_path)
 
 # Define regions and their corresponding branches
 regions_dict = {
@@ -19,12 +25,21 @@ regions_dict = {
     'Anadolu Bölge': ['Adana Şubesi', 'Anadolu Şubesi', 'Antalya Şubesi', 'Başkent Şubesi', 'Diyarbakır Şubesi', 'Gaziantep Şubesi', 'Kayseri Şubesi', 'Mersin Şubesi', 'Samsun Şubesi', 'Trabzon Şubesi'],
     'Ankara Şubesi': ['Ankara Şubesi'],
     'Yatırım Danışmanlığı Merkezi': ['Yatırım Danışmanlığı Merkezi'],
-    'Hepsi': ['Bahçeşehir Şubesi', 'Taksim Şubesi', 'Beylikdüzü Şubesi', 'Yeşilyurt Şubesi', 'Maslak Şubesi', 'Güneşli Şubesi','Kalamış Şubesi', 'Ataşehir Şubesi', 'Maltepe Şubesi', 'Bağdat Caddesi Şubesi', 'Tuzla Şubesi','Levent Şubesi', 'Nişantaşı Şubesi','Bodrum Şubesi', 'Bursa Şubesi', 'Denizli Şubesi', 'Ege Şubesi', 'Eskişehir Şubesi', 'İzmir Şubesi', 'Dokuz Eylül Şubesi', '9 Eylül Şubesi','Adana Şubesi', 'Anadolu Şubesi', 'Antalya Şubesi', 'Başkent Şubesi', 'Diyarbakır Şubesi', 'Gaziantep Şubesi', 'Kayseri Şubesi', 'Mersin Şubesi', 'Samsun Şubesi', 'Trabzon Şubesi','Ankara Şubesi','Yatırım Danışmanlığı Merkezi']
+    'Hepsi': ['Bahçeşehir Şubesi', 'Taksim Şubesi', 'Beylikdüzü Şubesi', 'Yeşilyurt Şubesi', 'Maslak Şubesi', 'Güneşli Şubesi', 'Kalamış Şubesi', 'Ataşehir Şubesi', 'Maltepe Şubesi', 'Bağdat Caddesi Şubesi', 'Tuzla Şubesi', 'Levent Şubesi', 'Nişantaşı Şubesi', 'Bodrum Şubesi', 'Bursa Şubesi', 'Denizli Şubesi', 'Ege Şubesi', 'Eskişehir Şubesi', 'İzmir Şubesi', 'Dokuz Eylül Şubesi', '9 Eylül Şubesi', 'Adana Şubesi', 'Anadolu Şubesi', 'Antalya Şubesi', 'Başkent Şubesi', 'Diyarbakır Şubesi', 'Gaziantep Şubesi', 'Kayseri Şubesi', 'Mersin Şubesi', 'Samsun Şubesi', 'Trabzon Şubesi', 'Ankara Şubesi', 'Yatırım Danışmanlığı Merkezi']
 }
 
 # Sidebar for user input
 st.sidebar.title("Gösterge Paneli Ayarları")
 st.sidebar.markdown("### *Ayarlar*")
+
+# Select dataset
+selected_dataset = st.sidebar.selectbox('Veri Seti Seçimi', ['Erimiş', 'Eriyecekler'])
+
+# Load selected dataset
+if selected_dataset == 'Erimiş':
+    data = Erimis
+else:
+    data = Erimeyecekler
 
 # Select region
 selected_region = st.sidebar.selectbox('Bölge Seçimi', list(regions_dict.keys()))
@@ -40,7 +55,7 @@ month_columns = ['Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz']
 selected_months = st.sidebar.multiselect('Ayları Seçin', month_columns, default=month_columns)
 
 # Filter data based on selections
-filtered_data = Erimiş[Erimiş['Şube'].isin(selected_branches)]
+filtered_data = data[data['Şube'].isin(selected_branches)]
 
 # Filter the data based on selected months
 monthly_data = filtered_data[['Müşteri Adı', 'Şube', 'Gelir'] + selected_months].copy()
@@ -108,20 +123,27 @@ avg_revenue_branch_chart = alt.Chart(avg_revenue_branch).mark_bar().encode(
     title='Şubelere Göre Ortalama Gelir'
 )
 
-
+# Sidebar Metrics
 Gerçekleşmiş_Erime_Oranı = 1.21
-# Average Annual Account Amount
 avg_account_amount = Gerçekleşmiş_Erime_Oranı
 st.sidebar.metric(label="Erime Oranı", value=f"{avg_account_amount:.2f}%")
-#komisyon geliri
-avg_gelir = 13684265.00
-# Binlik ayırıcılarıyla ve ondalıklı biçimlendirme
-formatted_avg_gelir = "{:,.2f}".format(avg_gelir)
 
-# Sidebar'da gösterim
+avg_gelir = 13684265.00
+formatted_avg_gelir = "{:,.2f}".format(avg_gelir)
 st.sidebar.metric(label="Erimişlerin Komisyon Geliri", value=formatted_avg_gelir)
+
+eriyecekler_yüzde = 20.19
+eriyecekler_yüzde = eriyecekler_yüzde
+st.sidebar.metric(label="Eriyecekler Yüzdesi", value=f"{eriyecekler_yüzde:.2f}%")
+
+eriyecekler_sayısı = 2927
+eriyecekler_sayısı = eriyecekler_sayısı
+st.sidebar.metric(label="Eriyecekler Sayısı", value=f"{eriyecekler_sayısı:.2f}")
+
+
+
 # Display the charts
-st.title("Erimişler Gösterge Paneli")
+st.title("Erimişler ve Eriyecekler Gösterge Paneli")
 st.markdown("### Şube ve Müşteriye Göre Gelir Analizi")
 
 st.altair_chart(pivot_chart, use_container_width=True)
